@@ -1,15 +1,54 @@
 #include <Arduino.h>
+#include <WS2812FX.h>
+#include <Adafruit_NeoPixel.h>
 
-// the setup function runs once when you press reset or power the board
-void setup() {
-  // initialize digital pin LED_BUILTIN as an output.
-  pinMode(LED_BUILTIN, OUTPUT);
+#define LED_COUNT 120
+#define LED_PIN 13
+#define MAX_BRIGHTNESS 255
+
+WS2812FX ledFx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+
+void changeLedFxMode(int newLedFxMode) {
+  newLedFxMode = constrain(newLedFxMode, 0, FX_MODE_CUSTOM);
+  ledFx.setMode(newLedFxMode);
+  Serial.print(newLedFxMode);
+  Serial.print(": ");
+  Serial.println(ledFx.getModeName(newLedFxMode));
 }
 
-// the loop function runs over and over again forever
+void changeLedFxSpeed(uint16_t newSpeed) {
+  newSpeed = constrain(newSpeed, SPEED_MIN, SPEED_MAX);
+  ledFx.setSpeed(newSpeed);
+  Serial.print("Spd: ");
+  Serial.println(newSpeed);
+}
+
+void setup() {
+  Serial.begin(256000);
+  Serial.println("\n>>");
+  ledFx.init();
+  ledFx.setColor(WHITE);
+  ledFx.setBrightness(MAX_BRIGHTNESS);
+  changeLedFxSpeed(256);
+  changeLedFxMode(FX_MODE_RAINBOW_CYCLE);
+  ledFx.start();
+}
+
 void loop() {
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
-  delay(1000);                       // wait for a second
-  digitalWrite(LED_BUILTIN, LOW);    // turn the LED off by making the voltage LOW
-  delay(1000);                       // wait for a second
+  const uint32_t now_us = micros();
+  switch (char c = Serial.read()) {
+    case '8':
+      changeLedFxMode(ledFx.getMode() + 1);
+      break;
+    case '2':
+      changeLedFxMode(ledFx.getMode() - 1);
+      break;
+    case '7':
+      changeLedFxSpeed(ledFx.getSpeed() << 1);
+      break;
+    case '1':
+      changeLedFxSpeed(ledFx.getSpeed() >> 1);
+      break;
+  }
+  ledFx.service();
 }
