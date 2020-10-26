@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Arduino Project Settings">
+    <option name="baudRate" value="256000" />
+    <option name="buildConfigurationNames" value="(^|.+-)upload$|^PlatformIO Upload" />
+    <option name="immediateSend" value="false" />
+    <option name="port" value="COM4" />
+    <option name="regexSampleText" value="upload|test-upload|!-upload|PlatformIO Upload" />
+  </component>
+</project>

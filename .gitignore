@@ -2,3 +2,5 @@
 .vscode/
 CMakeListsPrivate.txt
 cmake-build-*/
+
+/include/*_secrets.h
