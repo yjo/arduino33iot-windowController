@@ -9,7 +9,7 @@
 #define DEFAULT_BRIGHTNESS 50
 
 SlatsMotor slatsMotor;
-WS2812FX ledFx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB + NEO_KHZ800);
+WS2812FX ledFx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB | NEO_KHZ800);
 
 uint32_t colors[] = {RED, GREEN, BLUE};
 
@@ -29,7 +29,7 @@ void changeLedFxSpeed(int32_t newSpeed) {
 }
 
 void changeLedFxBrightness(int16_t newBrightness) {
-  newBrightness = constrain(newBrightness, 1, 255);
+  newBrightness = constrain(newBrightness, 0, 255);
   ledFx.setBrightness(newBrightness);
   Serial.print("Brightness: ");
   Serial.println(newBrightness);
@@ -51,7 +51,6 @@ void setup() {
 }
 
 void loop() {
-  const uint32_t now_us = micros();
   switch (char c = Serial.read()) {
     case '8':
       changeLedFxMode(ledFx.getMode() + 1);
@@ -70,6 +69,15 @@ void loop() {
       break;
     case '3':
       changeLedFxBrightness(ledFx.getBrightness() - 1);
+      break;
+    case '4':
+      slatsMotor.setMode(SlatsMotor::Mode::closed);
+      break;
+    case '5':
+      slatsMotor.setMode(SlatsMotor::Mode::boo);
+      break;
+    case '6':
+      slatsMotor.setMode(SlatsMotor::Mode::open);
       break;
   }
   ledFx.service();

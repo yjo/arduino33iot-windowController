@@ -21,6 +21,7 @@ void SlatsMotor::service() {
       break;
   }
 
+  angle_deg = constrain(angle_deg, SLATS_OPEN_deg, SLATS_CLOSED_deg);
   int delay_us = map(angle_deg, 0, 270, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   servo.writeMicroseconds(delay_us);
 }
@@ -28,12 +29,9 @@ void SlatsMotor::service() {
 void SlatsMotor::serviceProgram() {
   const uint32_t now_ms = millis();
 
-  if (currentInstr->endAngle_deg >= 0) {
-    uint32_t duration = currentInstrEnd_ms - currentInstrStart_ms;
-    uint32_t elapsed = now_ms - currentInstrStart_ms;
-    angle_deg = map(elapsed, 0, duration, currentInstrStartAngle_deg, currentInstr->endAngle_deg);
-    angle_deg = constrain(angle_deg, SLATS_OPEN_deg, SLATS_CLOSED_deg);
-  }
+  const uint32_t duration_ms = currentInstrEnd_ms - currentInstrStart_ms;
+  const uint32_t elapsed_ms = constrain(now_ms - currentInstrStart_ms, 0, duration_ms);
+  angle_deg = map(elapsed_ms, 0, duration_ms, currentInstrStartAngle_deg, currentInstr->endAngle_deg);
 
   if (isXAfterY_wrapped(now_ms, currentInstrEnd_ms)) {
     programTick(now_ms);
@@ -41,14 +39,30 @@ void SlatsMotor::serviceProgram() {
 }
 
 void SlatsMotor::programTick(const uint32_t now_ms) {
-  if (currentInstr->endAngle_deg >= 0) {
-    angle_deg = currentInstr->endAngle_deg;
-  }
-  auto nextInstrIndex = (currentInstr - servoProg) % servoProgSize;
+  angle_deg = currentInstr->endAngle_deg;
+
+  auto nextInstrIndex = (currentInstr - servoProg + 1) % servoProgSize;
   currentInstr = &servoProg[nextInstrIndex];
+
   currentInstrStart_ms = now_ms;
   currentInstrStartAngle_deg = angle_deg;
   uint32_t delay_ms = random(currentInstr->minDuration_ms,
                              max(currentInstr->minDuration_ms, currentInstr->maxDuration_ms));
   currentInstrEnd_ms = now_ms + delay_ms;
+}
+
+void SlatsMotor::setMode(SlatsMotor::Mode mode) {
+  switch (mode) {
+    case Mode::closed:
+      Serial.println("slats: closed");
+      break;
+    case Mode::open:
+      Serial.println("slats: open");
+      break;
+    case Mode::boo:
+      Serial.println("slats: boo!");
+      currentInstrStartAngle_deg = angle_deg;
+      break;
+  }
+  this->mode = mode;
 }

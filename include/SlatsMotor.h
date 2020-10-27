@@ -16,6 +16,8 @@ class SlatsMotor {
 
     Mode mode = Mode::boo;
 
+    void setMode(Mode mode);
+
   private:
     struct ServoInstr {
       const int16_t endAngle_deg;
@@ -27,8 +29,8 @@ class SlatsMotor {
     static constexpr int16_t SLATS_CLOSED_deg = 150;
 
     static constexpr ServoInstr servoProg[] = {
-        // Keep closed for 30sec to 5min
-        {SLATS_CLOSED_deg, 30 * 1000ul, 2 * 60 * 1000ul},
+        // Keep closed for 30s to 90s
+        {SLATS_CLOSED_deg, 90 * 1000ul, 90 * 1000ul},
 
         // Open at max speed, hold for (the remainder of) 3sec
         {SLATS_OPEN_deg},
@@ -37,6 +39,7 @@ class SlatsMotor {
         // Close over 5s
         {SLATS_CLOSED_deg, 5 * 1000ul},
     };
+
     static constexpr uint16_t servoProgSize = sizeof(servoProg) / sizeof(servoProg[0]);
 
     Servo servo;
@@ -45,7 +48,6 @@ class SlatsMotor {
     uint32_t currentInstrStart_ms = 0;
     uint32_t currentInstrEnd_ms = 0;
     int currentInstrStartAngle_deg = servoProg[0].endAngle_deg;
-
     int angle_deg = currentInstrStartAngle_deg;
 
     void serviceProgram();
