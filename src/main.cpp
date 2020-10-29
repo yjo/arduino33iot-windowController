@@ -10,22 +10,26 @@ const char wifiPassword[] = WIFI_PASS;
 
 LedFxStrip ledFxStrip = LedFxStrip(120, 13);
 SlatsMotor slatsMotor;
+WiFiServer telnetServer(23);
 
 void connectToWifi();
-void updateParamsFromSerialInputChar();
+void handleCommand(Stream &stream);
 size_t printWifiStatusTo(Print &p);
+void serviceTelnet();
 
 void setup() {
   Serial.begin(256000);
   Serial.println("\n>>");
 
   connectToWifi();
+  telnetServer.begin();
   ledFxStrip.init();
   slatsMotor.init(A7);
 }
 
 void loop() {
-  updateParamsFromSerialInputChar();
+  handleCommand(Serial);
+  serviceTelnet();
   ledFxStrip.service();
   slatsMotor.service();
 }
@@ -46,8 +50,8 @@ size_t printWifiStatusTo(Print &p) {
       p.print("time: ") + p.println(WiFi.getTime());
 }
 
-void updateParamsFromSerialInputChar() {
-  switch (Serial.read()) {
+void handleCommand(Stream &stream) {
+  switch (stream.read()) {
     case '8':
       ledFxStrip.setMode(ledFxStrip.getMode() + 1);
       break;
@@ -78,7 +82,15 @@ void updateParamsFromSerialInputChar() {
     case '0':
       slatsMotor.setMode(SlatsMotor::Mode::stop);
       ledFxStrip.setBrightness(0);
+    case '?':
+      printWifiStatusTo(stream);
     default:
       break;
+  }
+}
+
+void serviceTelnet() {
+  while (auto client = telnetServer.available()) {
+    handleCommand(client);
   }
 }
