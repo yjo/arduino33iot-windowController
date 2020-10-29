@@ -16,7 +16,7 @@ class SlatsMotor {
 
     Mode mode = Mode::boo;
 
-    void setMode(Mode mode);
+    void setMode(Mode mode, Print &out = Serial);
 
   private:
     struct ServoInstr {

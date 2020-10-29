@@ -38,14 +38,16 @@ inline void connectToWifi() {
   for (int status = WL_IDLE_STATUS; status != WL_CONNECTED;) {
     Serial.println("Connecting to wifi...");
     status = WiFi.begin(wifiSsid, wifiPassword);
+    printWifiStatusTo(Serial);
   }
-
-  printWifiStatusTo(Serial);
 }
 
 size_t printWifiStatusTo(Print &p) {
   return
-      p.print("WiFi firmware: v") + p.println(WiFiClass::firmwareVersion()) +
+      // see WiFiNINA/src/utility/wl_definitions.h:50 for list of statuses
+      p.print("\nWiFi status: ") + p.println(WiFi.status()) +
+      p.print("RSSI: ") + p.print(WiFi.RSSI()) + p.println("dBm") +
+      p.print("Firmware: v") + p.println(WiFiClass::firmwareVersion()) +
       p.print("IP: ") + p.println(WiFi.localIP()) +
       p.print("time: ") + p.println(WiFi.getTime());
 }
@@ -53,37 +55,42 @@ size_t printWifiStatusTo(Print &p) {
 void handleCommand(Stream &stream) {
   switch (stream.read()) {
     case '8':
-      ledFxStrip.setMode(ledFxStrip.getMode() + 1);
+      ledFxStrip.setMode(ledFxStrip.getMode() + 1, stream);
       break;
     case '2':
-      ledFxStrip.setMode(ledFxStrip.getMode() - 1);
+      ledFxStrip.setMode(ledFxStrip.getMode() - 1, stream);
       break;
     case '7':
-      ledFxStrip.setPeriod_ms(ledFxStrip.getPeriod_ms() << 1);
+      ledFxStrip.setPeriod_ms(ledFxStrip.getPeriod_ms() << 1, stream);
       break;
     case '1':
-      ledFxStrip.setPeriod_ms(ledFxStrip.getPeriod_ms() >> 1);
+      ledFxStrip.setPeriod_ms(ledFxStrip.getPeriod_ms() >> 1, stream);
       break;
     case '9':
-      ledFxStrip.setBrightness((ledFxStrip.getBrightness() << 1) + 1);
+      ledFxStrip.setBrightness((ledFxStrip.getBrightness() << 1) + 1, stream);
       break;
     case '3':
-      ledFxStrip.setBrightness(min(255, ledFxStrip.getBrightness() >> 1));
+      ledFxStrip.setBrightness(min(255, ledFxStrip.getBrightness() >> 1), stream);
       break;
     case '4':
-      slatsMotor.setMode(SlatsMotor::Mode::closed);
+      slatsMotor.setMode(SlatsMotor::Mode::closed, stream);
       break;
     case '5':
-      slatsMotor.setMode(SlatsMotor::Mode::boo);
+      slatsMotor.setMode(SlatsMotor::Mode::boo, stream);
       break;
     case '6':
-      slatsMotor.setMode(SlatsMotor::Mode::open);
+      slatsMotor.setMode(SlatsMotor::Mode::open, stream);
       break;
     case '0':
-      slatsMotor.setMode(SlatsMotor::Mode::stop);
+      slatsMotor.setMode(SlatsMotor::Mode::stop, stream);
       ledFxStrip.setBrightness(0);
     case '?':
       printWifiStatusTo(stream);
+      break;
+    case '!': // echo to all terminals
+      Serial.println('!');
+      telnetServer.println('!');
+      break;
     default:
       break;
   }

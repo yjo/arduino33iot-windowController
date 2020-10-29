@@ -15,13 +15,13 @@ class LedFxStrip {
     }
 
     uint8_t getMode() { return ws2812fx.getMode(); }
-    void setMode(int mode);
+    void setMode(int mode, Print &out = Serial);
 
     uint16_t getPeriod_ms() { return ws2812fx.getSpeed(); }
-    void setPeriod_ms(uint32_t delay_ms);
+    void setPeriod_ms(uint32_t delay_ms, Print &out = Serial);
 
     uint8_t getBrightness() { return ws2812fx.getBrightness(); }
-    void setBrightness(uint16_t newBrightness);
+    void setBrightness(uint16_t newBrightness, Print &out = Serial);
 
   private:
     WS2812FX ws2812fx;

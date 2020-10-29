@@ -53,19 +53,19 @@ void SlatsMotor::programTick(const uint32_t now_ms) {
   currentInstrEnd_ms = now_ms + delay_ms;
 }
 
-void SlatsMotor::setMode(SlatsMotor::Mode mode) {
+void SlatsMotor::setMode(SlatsMotor::Mode mode, Print &out) {
   switch (mode) {
     case Mode::closed:
-      Serial.println("slats: closed");
+      out.println("slats: closed");
       break;
     case Mode::open:
-      Serial.println("slats: open");
+      out.println("slats: open");
       break;
     case Mode::stop:
-      Serial.println("slats: stopped");
+      out.println("slats: stopped");
       break;
     case Mode::boo:
-      Serial.println("slats: boo!");
+      out.println("slats: boo!");
       currentInstrStartAngle_deg = angle_deg;
       break;
   }
