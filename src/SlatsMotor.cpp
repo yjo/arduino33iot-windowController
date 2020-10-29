@@ -61,6 +61,9 @@ void SlatsMotor::setMode(SlatsMotor::Mode mode) {
     case Mode::open:
       Serial.println("slats: open");
       break;
+    case Mode::stop:
+      Serial.println("slats: stopped");
+      break;
     case Mode::boo:
       Serial.println("slats: boo!");
       currentInstrStartAngle_deg = angle_deg;
