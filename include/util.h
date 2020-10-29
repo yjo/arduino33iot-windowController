@@ -12,6 +12,6 @@
 #define hasIntervalElapsed_us(interval_us) ({ static uint32_t lastRun_us = now_us; (isXAfterY_wrapped(now_us, lastRun_us + (interval_us)) ? ({lastRun_us = now_us; true;}) : false); })
 #define hasIntervalElapsed_ms(interval_ms) hasIntervalElapsed_us(((uint32_t) (interval_ms)) * 1000ul)
 
-#define log(expr) Serial.print(#expr ": "); Serial.println(expr)
+#define trace(expr) Serial.print(#expr ": "); Serial.println(expr)
 
 #endif //IOT33PIO_UTIL_H

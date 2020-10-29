@@ -11,7 +11,7 @@ class SlatsMotor {
     void service();
 
     enum class Mode : uint8_t {
-        closed, open, boo
+        closed, open, boo, stop
     };
 
     Mode mode = Mode::boo;

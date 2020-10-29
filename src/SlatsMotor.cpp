@@ -19,6 +19,8 @@ void SlatsMotor::service() {
     case Mode::boo:
       serviceProgram();
       break;
+    case Mode::stop:
+      break;
   }
 
   angle_deg = constrain(angle_deg, SLATS_OPEN_deg, SLATS_CLOSED_deg);
