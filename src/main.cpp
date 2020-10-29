@@ -6,7 +6,7 @@
 
 #define LED_COUNT 120
 #define LED_PIN 13
-#define DEFAULT_BRIGHTNESS 50
+#define DEFAULT_BRIGHTNESS 31
 
 SlatsMotor slatsMotor;
 WS2812FX ledFx = WS2812FX(LED_COUNT, LED_PIN, NEO_GRB | NEO_KHZ800);
@@ -65,10 +65,10 @@ void loop() {
       changeLedFxSpeed(ledFx.getSpeed() >> 1);
       break;
     case '9':
-      changeLedFxBrightness(ledFx.getBrightness() + 1);
+      changeLedFxBrightness( (ledFx.getBrightness() << 1) + 1);
       break;
     case '3':
-      changeLedFxBrightness(ledFx.getBrightness() - 1);
+      changeLedFxBrightness(min(255, ledFx.getBrightness() >> 1));
       break;
     case '4':
       slatsMotor.setMode(SlatsMotor::Mode::closed);
@@ -78,6 +78,8 @@ void loop() {
       break;
     case '6':
       slatsMotor.setMode(SlatsMotor::Mode::open);
+      break;
+    default:
       break;
   }
   ledFx.service();
