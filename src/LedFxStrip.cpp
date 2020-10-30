@@ -35,3 +35,12 @@ void LedFxStrip::setBrightness(uint16_t newBrightness, Print &out) {
   out.print("Brightness: ");
   out.println(newBrightness);
 }
+
+void LedFxStrip::onBeforeUpdate() {
+  savedBrightness = ws2812fx.getBrightness();
+  ws2812fx.setBrightness(0);
+}
+
+void LedFxStrip::onUpdateFailed() {
+  ws2812fx.setBrightness(savedBrightness);
+}

@@ -8,7 +8,9 @@
 
 class ConfigSubscriber {
   public:
+    virtual void onBeforeUpdate() {};
     virtual void onConfigChanged() = 0;
+    virtual void onUpdateFailed() {};
 };
 
 class ConfigClass {
@@ -21,17 +23,20 @@ class ConfigClass {
     uint32_t period_ms = 200;
     int fxMode = 0;
     uint32_t colours[3] = {RED, ORANGE, BLACK};
-
+    uint8_t motorMode = 3; //stop
 
     void subscribe(ConfigSubscriber *subscriber);
   private:
     void set(const char *name, const char *value);
-    void notify();
+    void dispatchBeforeUpdate();
+    void dispatchConfigChanged();
+    void dispatchUpdateFailed();
+
     bool updateSelfFromHttpClient(HttpClient &client);
 
     struct Subscriptions {
-      ConfigSubscriber * const subscriber;
-      Subscriptions * const next;
+      ConfigSubscriber *const subscriber;
+      Subscriptions *const next;
     };
     Subscriptions *subscriptions = nullptr;
     WiFiSSLClient wifiClient = WiFiSSLClient();

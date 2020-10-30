@@ -6,6 +6,7 @@ constexpr SlatsMotor::ServoInstr SlatsMotor::servoProg[];
 void SlatsMotor::init(int pinNumber) {
   servo.attach(pinNumber);
   currentInstrStart_ms = currentInstrEnd_ms = millis();
+  config.subscribe(this);
 }
 
 void SlatsMotor::service() {
@@ -70,4 +71,16 @@ void SlatsMotor::setMode(SlatsMotor::Mode mode, Print &out) {
       break;
   }
   this->mode = mode;
+}
+
+void SlatsMotor::onConfigChanged() {
+  setMode(static_cast<Mode>(config.motorMode));
+}
+
+void SlatsMotor::onBeforeUpdate() {
+  oldMode = Mode::stop;
+}
+
+void SlatsMotor::onUpdateFailed() {
+  mode = oldMode;
 }

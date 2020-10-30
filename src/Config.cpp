@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "SlatsMotor.h"
 
 void ConfigClass::updateFromWeb() {
   uint32_t start_ms = millis();
@@ -6,9 +7,12 @@ void ConfigClass::updateFromWeb() {
   wifiClient.stop();
   HttpClient client(wifiClient);
 
+  dispatchBeforeUpdate();
   if (updateSelfFromHttpClient(client)) {
-    notify();
+    dispatchConfigChanged();
     Serial.println("Update successful");
+  } else {
+    dispatchUpdateFailed();
   }
   client.stop();
   Serial.print(millis() - start_ms);
@@ -54,7 +58,7 @@ bool ConfigClass::updateFromStream(Stream &stream) {
     }
 
     String name = stream.readStringUntil('=');
-    String value = stream.readStringUntil('\n');
+    String value = stream.readStringUntil(';');
     if (name.length() && value.length()) {
       set(name.c_str(), value.c_str());
     }
@@ -66,9 +70,21 @@ void ConfigClass::subscribe(ConfigSubscriber *subscriber) {
   subscriber->onConfigChanged();
 }
 
-void ConfigClass::notify() {
+void ConfigClass::dispatchBeforeUpdate() {
+  for (const Subscriptions *ptr = subscriptions; ptr != nullptr; ptr = ptr->next) {
+    ptr->subscriber->onBeforeUpdate();
+  }
+}
+
+void ConfigClass::dispatchConfigChanged() {
   for (const Subscriptions *ptr = subscriptions; ptr != nullptr; ptr = ptr->next) {
     ptr->subscriber->onConfigChanged();
+  }
+}
+
+void ConfigClass::dispatchUpdateFailed() {
+  for (const Subscriptions *ptr = subscriptions; ptr != nullptr; ptr = ptr->next) {
+    ptr->subscriber->onUpdateFailed();
   }
 }
 
@@ -83,10 +99,25 @@ void ConfigClass::set(const char *name, const char *value) {
   } else if (!strcmp(name, "colour0")) {
     colours[0] = strtoul(value, nullptr, 16);
   } else if (!strcmp(name, "colour1")) {
-    colours[0] = strtoul(value, nullptr, 16);
+    colours[1] = strtoul(value, nullptr, 16);
   } else if (!strcmp(name, "colour2")) {
-    colours[0] = strtoul(value, nullptr, 16);
-  } else {
+    colours[2] = strtoul(value, nullptr, 16);
+  } else if (!strcmp(name, "motorMode")) {
+    switch (*value){
+      case 'b':
+        motorMode = static_cast<uint8_t>(SlatsMotor::Mode::boo);
+        break;
+      case 'c':
+        motorMode = static_cast<uint8_t>(SlatsMotor::Mode::closed);
+        break;
+      case 'o':
+        motorMode = static_cast<uint8_t>(SlatsMotor::Mode::open);
+        break;
+      case 's':
+        motorMode = static_cast<uint8_t>(SlatsMotor::Mode::stop);
+        break;
+    };
+  }else {
     Serial.print("Unknown property: '");
     Serial.print(name);
     Serial.println("'");

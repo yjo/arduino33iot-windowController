@@ -2,21 +2,28 @@
 #define IOT33PIO_SLATSMOTOR_H
 
 #include <Servo.h>
+#include "Config.h"
 #include "util.h"
 
-class SlatsMotor {
+class SlatsMotor: ConfigSubscriber {
   public:
     void init(int pinNumber);
 
     void service();
 
     enum class Mode : uint8_t {
-        closed, open, boo, stop
+        closed = 0, open = 1, boo = 2, stop = 3
     };
 
     Mode mode = Mode::boo;
 
     void setMode(Mode mode, Print &out = Serial);
+
+  private:
+    Mode oldMode;
+    void onBeforeUpdate() override;
+    void onUpdateFailed() override;
+    void onConfigChanged() override;
 
   private:
     struct ServoInstr {

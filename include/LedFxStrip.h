@@ -25,8 +25,11 @@ class LedFxStrip: private ConfigSubscriber {
 
   private:
     WS2812FX ws2812fx;
+    uint8_t savedBrightness;
 
     void onConfigChanged() override;
+    void onBeforeUpdate() override;
+    void onUpdateFailed() override;
 };
 
 #endif //IOT33PIO_LEDFXSTRIP_H

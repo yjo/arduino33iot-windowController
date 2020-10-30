@@ -15,7 +15,7 @@ WiFiServer telnetServer(23);
 
 void connectToWifi();
 void handleCommand(Stream &stream);
-size_t printWifiStatusTo(Print &p);
+size_t printStatusTo(Print &p);
 void serviceTelnet();
 
 void setup() {
@@ -40,18 +40,19 @@ inline void connectToWifi() {
   for (int status = WL_IDLE_STATUS; status != WL_CONNECTED;) {
     Serial.println("Connecting to wifi...");
     status = WiFi.begin(wifiSsid, wifiPassword);
-    printWifiStatusTo(Serial);
+    printStatusTo(Serial);
   }
 }
 
-size_t printWifiStatusTo(Print &p) {
+size_t printStatusTo(Print &p) {
   return
       // see WiFiNINA/src/utility/wl_definitions.h:50 for list of statuses
       p.print("\nWiFi status: ") + p.println(WiFi.status()) +
       p.print("RSSI: ") + p.print(WiFi.RSSI()) + p.println("dBm") +
       p.print("Firmware: v") + p.println(WiFiClass::firmwareVersion()) +
       p.print("IP: ") + p.println(WiFi.localIP()) +
-      p.print("time: ") + p.println(WiFi.getTime());
+      p.print("time: ") + p.println(WiFi.getTime()) +
+      p.println("Compiled at: " __DATE__ " " __TIME__);
 }
 
 void handleCommand(Stream &stream) {
@@ -87,7 +88,7 @@ void handleCommand(Stream &stream) {
       slatsMotor.setMode(SlatsMotor::Mode::stop, stream);
       ledFxStrip.setBrightness(0);
     case '?':
-      printWifiStatusTo(stream);
+      printStatusTo(stream);
       break;
     case '!': // echo to all terminals
       Serial.println('!');
