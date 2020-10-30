@@ -1,0 +1,6 @@
+brightness=35
+period_ms=300
+fxMode=12      #FX_MODE_RAINBOW_CYCLE
+colour0=FF0000 #red
+colour1=FF3000 #orange
+colour2=00FF00 #black

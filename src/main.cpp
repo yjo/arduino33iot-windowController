@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <WiFiNINA.h>
 
+#include "Config.h"
 #include "wifi_secrets.h"
 #include "SlatsMotor.h"
 #include "LedFxStrip.h"
@@ -22,6 +23,7 @@ void setup() {
   Serial.println("\n>>");
 
   connectToWifi();
+  config.updateFromWeb();
   telnetServer.begin();
   ledFxStrip.init();
   slatsMotor.init(A7);
@@ -90,6 +92,12 @@ void handleCommand(Stream &stream) {
     case '!': // echo to all terminals
       Serial.println('!');
       telnetServer.println('!');
+      break;
+    case 'u':
+      config.updateFromWeb();
+      break;
+    case 'r':
+      NVIC_SystemReset();
       break;
     default:
       break;

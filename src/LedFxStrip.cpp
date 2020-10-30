@@ -1,13 +1,16 @@
 #include "LedFxStrip.h"
 
-void LedFxStrip::init(int fxMode, int brightness, int period_ms) {
-  uint32_t colors[] = {RED, GREEN, BLUE};
+void LedFxStrip::init() {
   ws2812fx.init();
-  ws2812fx.setColors(0, colors);
-  setBrightness(brightness);
-  setPeriod_ms(period_ms);
-  setMode(fxMode);
+  config.subscribe(this);
   ws2812fx.start();
+}
+
+void LedFxStrip::onConfigChanged() {
+  ws2812fx.setColors(0, config.colours);
+  setBrightness(config.brightness);
+  setPeriod_ms(config.period_ms);
+  setMode(config.fxMode);
 }
 
 void LedFxStrip::setMode(int mode, Print &out) {

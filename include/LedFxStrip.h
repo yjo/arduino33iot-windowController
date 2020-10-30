@@ -2,13 +2,13 @@
 #define IOT33PIO_LEDFXSTRIP_H
 
 #include <WS2812FX.h>
+#include "Config.h"
 
-class LedFxStrip {
-
+class LedFxStrip: private ConfigSubscriber {
   public:
     LedFxStrip(int ledCount, int ledPin) : ws2812fx(ledCount, ledPin, NEO_GRB | NEO_KHZ800) {}
 
-    void init(int fxMode = FX_MODE_RAINBOW_CYCLE, int brightness = 31, int period_ms = 320);
+    void init();
 
     void service() {
       ws2812fx.service();
@@ -25,7 +25,8 @@ class LedFxStrip {
 
   private:
     WS2812FX ws2812fx;
-};
 
+    void onConfigChanged() override;
+};
 
 #endif //IOT33PIO_LEDFXSTRIP_H
