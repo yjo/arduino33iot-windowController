@@ -16,7 +16,7 @@ void connectToWifi();
 void serviceTelnet();
 #endif
 
-LedFxStrip ledFxStrip = LedFxStrip(120, 13);
+LedFxStrip ledFxStrip = LedFxStrip(120, RGB_LEDS_PIN);
 SlatsMotor slatsMotor;
 
 void handleCommand(Stream &stream);
@@ -32,7 +32,7 @@ void setup() {
   telnetServer.begin();
 #endif
   ledFxStrip.init();
-  slatsMotor.init(A7);
+  slatsMotor.init(SLATS_MOTOR_PIN);
 }
 
 void loop() {
