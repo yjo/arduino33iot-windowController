@@ -36,12 +36,12 @@ class SlatsMotor: ConfigSubscriber {
     static constexpr int16_t SLATS_CLOSED_deg = 150;
 
     static constexpr ServoInstr servoProg[] = {
-        // Keep closed for 20s to 75s
-        {SLATS_CLOSED_deg, 20 * 1000ul, 75 * 1000ul},
+        // Keep closed for 20s to 45s
+        {SLATS_CLOSED_deg, 20 * 1000ul, 45 * 1000ul},
 
-        // Open at max speed, hold for (the remainder of) 3sec
+        // Open at max speed, hold for (the remainder of) 5sec
         {SLATS_OPEN_deg},
-        {SLATS_OPEN_deg,   3 * 1000ul},
+        {SLATS_OPEN_deg,   5 * 1000ul},
 
         // Close over 5s
         {SLATS_CLOSED_deg, 5 * 1000ul},
