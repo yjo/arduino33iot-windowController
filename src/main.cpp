@@ -4,7 +4,7 @@
 #include "SlatsMotor.h"
 #include "LedFxStrip.h"
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
 #include <WiFiNINA.h>
 #include "wifi_secrets.h"
 
@@ -26,10 +26,15 @@ void setup() {
   Serial.begin(256000);
   Serial.println("\n>>");
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
   connectToWifi();
   config.updateFromWeb();
   telnetServer.begin();
+#else
+  config.brightness = 35;
+  config.period_ms = 300;
+  config.fxMode = FX_MODE_RAINBOW_CYCLE;
+  config.motorMode = static_cast<uint8_t>(SlatsMotor::Mode::boo);
 #endif
   ledFxStrip.init();
   slatsMotor.init(SLATS_MOTOR_PIN);
@@ -37,14 +42,15 @@ void setup() {
 
 void loop() {
   handleCommand(Serial);
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
   serviceTelnet();
 #endif
-  ledFxStrip.service();
+  digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
   slatsMotor.service();
+  ledFxStrip.service();
 }
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
 inline void connectToWifi() {
   for (int status = WL_IDLE_STATUS; status != WL_CONNECTED;) {
     Serial.println("Connecting to wifi...");
@@ -62,13 +68,13 @@ void serviceTelnet() {
 
 size_t printStatusTo(Print &p) {
   return
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
-      // see WiFiNINA/src/utility/wl_definitions.h:50 for list of statuses
-      p.print("\nWiFi status: ") + p.println(WiFi.status()) +
-      p.print("RSSI: ") + p.print(WiFi.RSSI()) + p.println("dBm") +
-      p.print("Firmware: v") + p.println(WiFiClass::firmwareVersion()) +
-      p.print("IP: ") + p.println(WiFi.localIP()) +
-      p.print("time: ") + p.println(WiFi.getTime()) +
+#if defined(HAS_WIFI)
+    // see WiFiNINA/src/utility/wl_definitions.h:50 for list of statuses
+    p.print("\nWiFi status: ") + p.println(WiFi.status()) +
+    p.print("RSSI: ") + p.print(WiFi.RSSI()) + p.println("dBm") +
+    p.print("Firmware: v") + p.println(WiFiClass::firmwareVersion()) +
+    p.print("IP: ") + p.println(WiFi.localIP()) +
+    p.print("time: ") + p.println(WiFi.getTime()) +
 #endif
       p.println("Compiled at: " __DATE__ " " __TIME__);
 }
@@ -108,17 +114,17 @@ void handleCommand(Stream &stream) {
     case '?':
       printStatusTo(stream);
       break;
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
-    case '!': // echo to all terminals
-      Serial.println('!');
-      telnetServer.println('!');
-      break;
-    case 'u':
-      config.updateFromWeb();
-      break;
-    case 'r':
-      NVIC_SystemReset();
-      break;
+#if defined(HAS_WIFI)
+      case '!': // echo to all terminals
+        Serial.println('!');
+        telnetServer.println('!');
+        break;
+      case 'u':
+        config.updateFromWeb();
+        break;
+      case 'r':
+        NVIC_SystemReset();
+        break;
 #endif
     default:
       break;

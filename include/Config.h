@@ -4,7 +4,7 @@
 #include <WS2812FX.h>
 #include "util.h"
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
 #include <HttpClient.h>
 #include <WiFiNINA.h>
 #endif
@@ -25,7 +25,7 @@ class ConfigClass {
 
     // Config variables:
     uint8_t brightness = 0;
-    uint32_t period_ms = 200;
+    uint32_t period_ms = 300;
     int fxMode = 0;
     uint32_t colours[3] = {RED, ORANGE, BLACK};
     uint8_t motorMode = 3; //stop
@@ -34,7 +34,7 @@ class ConfigClass {
     uint8_t booBrightness = 255;
     int booFxMode = FX_MODE_STROBE;
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
     static constexpr char configServer[] = "home.yjo.me";
     static constexpr char configPath[] = "/ard/config.txt";
     void updateFromWeb();
@@ -54,7 +54,7 @@ class ConfigClass {
     Subscriptions *subscriptions = nullptr;
     boolean updateFromStream(Stream &stream);
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
     bool updateSelfFromHttpClient(HttpClient &client);
     WiFiSSLClient wifiClient = WiFiSSLClient();
 #endif

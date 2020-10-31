@@ -1,7 +1,7 @@
 #include "Config.h"
 #include "SlatsMotor.h"
 
-#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#if defined(HAS_WIFI)
 constexpr char ConfigClass::configServer[];
 constexpr char ConfigClass::configPath[];
 
