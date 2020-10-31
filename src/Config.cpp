@@ -1,6 +1,10 @@
 #include "Config.h"
 #include "SlatsMotor.h"
 
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
+constexpr char ConfigClass::configServer[];
+constexpr char ConfigClass::configPath[];
+
 void ConfigClass::updateFromWeb() {
   uint32_t start_ms = millis();
   Serial.println("Updating...");
@@ -42,6 +46,7 @@ bool ConfigClass::updateSelfFromHttpClient(HttpClient &client) {
 
   return updateFromStream(client);
 }
+#endif
 
 bool ConfigClass::updateFromStream(Stream &stream) {
   while (stream.available()) {
@@ -63,6 +68,7 @@ bool ConfigClass::updateFromStream(Stream &stream) {
       set(name.c_str(), value.c_str());
     }
   }
+  return true;
 }
 
 void ConfigClass::subscribe(ConfigSubscriber *subscriber) {
@@ -89,7 +95,7 @@ void ConfigClass::dispatchUpdateFailed() {
 }
 
 void ConfigClass::set(const char *name, const char *value) {
-  Serial.print("Setting '") + Serial.print(name) + Serial.print("' = '") + Serial.print(value) + Serial.println("'");
+  Serial.print("Setting '"); Serial.print(name); Serial.print("' = '"); Serial.print(value); Serial.println("'");
   if (!strcmp(name, "brightness")) {
     brightness = strtoul(value, nullptr, 10);
   } else if (!strcmp(name, "period_ms")) {
@@ -129,8 +135,5 @@ void ConfigClass::set(const char *name, const char *value) {
     Serial.println("'");
   }
 }
-
-constexpr char ConfigClass::configServer[];
-constexpr char ConfigClass::configPath[];
 
 ConfigClass config;

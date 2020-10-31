@@ -2,9 +2,12 @@
 #define IOT33PIO_CONFIG_H
 
 #include <WS2812FX.h>
+#include "util.h"
+
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
 #include <HttpClient.h>
 #include <WiFiNINA.h>
-#include "util.h"
+#endif
 
 class ConfigSubscriber {
   public:
@@ -15,9 +18,6 @@ class ConfigSubscriber {
 
 class ConfigClass {
   public:
-    static constexpr char configServer[] = "home.yjo.me";
-    static constexpr char configPath[] = "/ard/config.txt";
-    void updateFromWeb();
     void subscribe(ConfigSubscriber *subscriber);
 
     // Cheeky global:
@@ -34,21 +34,30 @@ class ConfigClass {
     uint8_t booBrightness = 255;
     int booFxMode = FX_MODE_STROBE;
 
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
+    static constexpr char configServer[] = "home.yjo.me";
+    static constexpr char configPath[] = "/ard/config.txt";
+    void updateFromWeb();
+#endif
+
   private:
     void set(const char *name, const char *value);
     void dispatchBeforeUpdate();
     void dispatchConfigChanged();
     void dispatchUpdateFailed();
 
-    bool updateSelfFromHttpClient(HttpClient &client);
 
     struct Subscriptions {
       ConfigSubscriber *const subscriber;
       Subscriptions *const next;
     };
     Subscriptions *subscriptions = nullptr;
-    WiFiSSLClient wifiClient = WiFiSSLClient();
     boolean updateFromStream(Stream &stream);
+
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
+    bool updateSelfFromHttpClient(HttpClient &client);
+    WiFiSSLClient wifiClient = WiFiSSLClient();
+#endif
 };
 
 extern ConfigClass config;

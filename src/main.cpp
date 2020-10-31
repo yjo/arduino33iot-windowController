@@ -1,41 +1,50 @@
 #include <Arduino.h>
-#include <WiFiNINA.h>
 
 #include "Config.h"
-#include "wifi_secrets.h"
 #include "SlatsMotor.h"
 #include "LedFxStrip.h"
 
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
+#include <WiFiNINA.h>
+#include "wifi_secrets.h"
+
 const char wifiSsid[] = WIFI_SSID;
 const char wifiPassword[] = WIFI_PASS;
-
-LedFxStrip ledFxStrip = LedFxStrip(120, 13);
-SlatsMotor slatsMotor;
 WiFiServer telnetServer(23);
 
 void connectToWifi();
+void serviceTelnet();
+#endif
+
+LedFxStrip ledFxStrip = LedFxStrip(120, 13);
+SlatsMotor slatsMotor;
+
 void handleCommand(Stream &stream);
 size_t printStatusTo(Print &p);
-void serviceTelnet();
 
 void setup() {
   Serial.begin(256000);
   Serial.println("\n>>");
 
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
   connectToWifi();
   config.updateFromWeb();
   telnetServer.begin();
+#endif
   ledFxStrip.init();
   slatsMotor.init(A7);
 }
 
 void loop() {
   handleCommand(Serial);
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
   serviceTelnet();
+#endif
   ledFxStrip.service();
   slatsMotor.service();
 }
 
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
 inline void connectToWifi() {
   for (int status = WL_IDLE_STATUS; status != WL_CONNECTED;) {
     Serial.println("Connecting to wifi...");
@@ -44,14 +53,23 @@ inline void connectToWifi() {
   }
 }
 
+void serviceTelnet() {
+  while (auto client = telnetServer.available()) {
+    handleCommand(client);
+  }
+}
+#endif
+
 size_t printStatusTo(Print &p) {
   return
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
       // see WiFiNINA/src/utility/wl_definitions.h:50 for list of statuses
       p.print("\nWiFi status: ") + p.println(WiFi.status()) +
       p.print("RSSI: ") + p.print(WiFi.RSSI()) + p.println("dBm") +
       p.print("Firmware: v") + p.println(WiFiClass::firmwareVersion()) +
       p.print("IP: ") + p.println(WiFi.localIP()) +
       p.print("time: ") + p.println(WiFi.getTime()) +
+#endif
       p.println("Compiled at: " __DATE__ " " __TIME__);
 }
 
@@ -90,6 +108,7 @@ void handleCommand(Stream &stream) {
     case '?':
       printStatusTo(stream);
       break;
+#if defined(ARDUINO_SAMD_NANO_33_IOT)
     case '!': // echo to all terminals
       Serial.println('!');
       telnetServer.println('!');
@@ -100,13 +119,8 @@ void handleCommand(Stream &stream) {
     case 'r':
       NVIC_SystemReset();
       break;
+#endif
     default:
       break;
-  }
-}
-
-void serviceTelnet() {
-  while (auto client = telnetServer.available()) {
-    handleCommand(client);
   }
 }
