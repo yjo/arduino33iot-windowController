@@ -6,6 +6,20 @@ void LedFxStrip::init() {
   ws2812fx.start();
 }
 
+void LedFxStrip::service() {
+  uint8_t currentMode = ws2812fx.getMode();
+  if (config.isInBoo && currentMode != config.booFxMode) {
+    ws2812fx.setMode(config.booFxMode);
+    ws2812fx.setColor(config.booColour);
+    ws2812fx.setBrightness(config.booBrightness);
+  } else if (!config.isInBoo && currentMode != config.fxMode) {
+    ws2812fx.setMode(config.fxMode);
+    ws2812fx.setColor(config.colours[0]);
+    ws2812fx.setBrightness(config.brightness);
+  }
+  ws2812fx.service();
+}
+
 void LedFxStrip::onConfigChanged() {
   ws2812fx.setColors(0, config.colours);
   setBrightness(config.brightness);

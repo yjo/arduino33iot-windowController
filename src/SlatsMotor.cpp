@@ -24,6 +24,8 @@ void SlatsMotor::service() {
       break;
   }
 
+  config.isInBoo = mode == Mode::boo && angle_deg == SLATS_OPEN_deg;
+
   angle_deg = constrain(angle_deg, SLATS_OPEN_deg, SLATS_CLOSED_deg);
   int delay_us = map(angle_deg, 0, 270, MIN_PULSE_WIDTH, MAX_PULSE_WIDTH);
   servo.writeMicroseconds(delay_us);

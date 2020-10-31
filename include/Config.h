@@ -18,14 +18,22 @@ class ConfigClass {
     static constexpr char configServer[] = "home.yjo.me";
     static constexpr char configPath[] = "/ard/config.txt";
     void updateFromWeb();
+    void subscribe(ConfigSubscriber *subscriber);
 
+    // Cheeky global:
+    bool isInBoo;
+
+    // Config variables:
     uint8_t brightness = 0;
     uint32_t period_ms = 200;
     int fxMode = 0;
     uint32_t colours[3] = {RED, ORANGE, BLACK};
     uint8_t motorMode = 3; //stop
 
-    void subscribe(ConfigSubscriber *subscriber);
+    uint32_t booColour = WHITE;
+    uint8_t booBrightness = 255;
+    int booFxMode = FX_MODE_STROBE;
+
   private:
     void set(const char *name, const char *value);
     void dispatchBeforeUpdate();

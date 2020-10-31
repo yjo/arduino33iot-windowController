@@ -10,9 +10,7 @@ class LedFxStrip: private ConfigSubscriber {
 
     void init();
 
-    void service() {
-      ws2812fx.service();
-    }
+    void service();
 
     uint8_t getMode() { return ws2812fx.getMode(); }
     void setMode(int mode, Print &out = Serial);

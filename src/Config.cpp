@@ -50,7 +50,7 @@ bool ConfigClass::updateFromStream(Stream &stream) {
     do {
       nextChar && stream.read();
       nextChar = stream.peek();
-    } while(nextChar == ' ' || nextChar == '\r' || nextChar == '\n' || nextChar == '\t');
+    } while (nextChar == ' ' || nextChar == '\r' || nextChar == '\n' || nextChar == '\t');
 
     if (nextChar == '#') {
       stream.find('\n');
@@ -103,7 +103,7 @@ void ConfigClass::set(const char *name, const char *value) {
   } else if (!strcmp(name, "colour2")) {
     colours[2] = strtoul(value, nullptr, 16);
   } else if (!strcmp(name, "motorMode")) {
-    switch (*value){
+    switch (*value) {
       case 'b':
         motorMode = static_cast<uint8_t>(SlatsMotor::Mode::boo);
         break;
@@ -117,7 +117,13 @@ void ConfigClass::set(const char *name, const char *value) {
         motorMode = static_cast<uint8_t>(SlatsMotor::Mode::stop);
         break;
     };
-  }else {
+  } else if (!strcmp(name, "booColour")) {
+    booColour = strtoul(value, nullptr, 16);
+  } else if (!strcmp(name, "booBrightness")) {
+    booBrightness = strtoul(value, nullptr, 10);
+  } else if (!strcmp(name, "booFxMode")) {
+    booFxMode = strtoul(value, nullptr, 10);
+  } else {
     Serial.print("Unknown property: '");
     Serial.print(name);
     Serial.println("'");
