@@ -3,6 +3,7 @@
 #include "Config.h"
 #include "SlatsMotor.h"
 #include "LedFxStrip.h"
+#include "HzCounter.h"
 
 #if defined(HAS_WIFI)
 #include <WiFiNINA.h>
@@ -16,6 +17,7 @@ void connectToWifi();
 void serviceTelnet();
 #endif
 
+HzCounter hzCounter;
 LedFxStrip ledFxStrip = LedFxStrip(120, RGB_LEDS_PIN);
 SlatsMotor slatsMotor;
 
@@ -38,6 +40,7 @@ void setup() {
 #endif
   ledFxStrip.init();
   slatsMotor.init(SLATS_MOTOR_PIN);
+  hzCounter.reset();
 }
 
 void loop() {
@@ -48,6 +51,7 @@ void loop() {
   digitalWrite(LED_BUILTIN, !digitalRead(LED_BUILTIN));
   slatsMotor.service();
   ledFxStrip.service();
+  hzCounter.tick();
 }
 
 #if defined(HAS_WIFI)
@@ -76,7 +80,8 @@ size_t printStatusTo(Print &p) {
     p.print("IP: ") + p.println(WiFi.localIP()) +
     p.print("time: ") + p.println(WiFi.getTime()) +
 #endif
-      p.println("Compiled at: " __DATE__ " " __TIME__);
+    p.print("Loop: ") + p.println(hzCounter) +
+    p.println("Compiled at: " __DATE__ " " __TIME__);
 }
 
 void handleCommand(Stream &stream) {
